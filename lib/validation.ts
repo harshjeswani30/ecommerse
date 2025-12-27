@@ -146,3 +146,156 @@ export const validatePaginationParams = (page?: string, limit?: string) => {
 
   return { page: pageNum, limit: limitNum };
 };
+
+export const validateAddress = (data: any) => {
+  const errors: string[] = [];
+
+  if (!data.fullName || typeof data.fullName !== "string" || data.fullName.trim().length === 0) {
+    errors.push("Full name is required");
+  }
+
+  if (!data.phone || typeof data.phone !== "string" || data.phone.trim().length === 0) {
+    errors.push("Phone number is required");
+  } else if (!/^[6-9]\d{9}$/.test(data.phone.replace(/\s/g, ""))) {
+    errors.push("Invalid Indian phone number (must be 10 digits starting with 6-9)");
+  }
+
+  if (!data.street || typeof data.street !== "string" || data.street.trim().length === 0) {
+    errors.push("Street address is required");
+  }
+
+  if (!data.city || typeof data.city !== "string" || data.city.trim().length === 0) {
+    errors.push("City is required");
+  }
+
+  if (!data.state || typeof data.state !== "string" || data.state.trim().length === 0) {
+    errors.push("State is required");
+  }
+
+  if (!data.pincode || typeof data.pincode !== "string" || data.pincode.trim().length === 0) {
+    errors.push("Pincode is required");
+  } else if (!/^\d{6}$/.test(data.pincode.trim())) {
+    errors.push("Invalid pincode (must be 6 digits)");
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Address validation failed", errors);
+  }
+
+  return {
+    fullName: data.fullName.trim(),
+    phone: data.phone.trim().replace(/\s/g, ""),
+    street: data.street.trim(),
+    city: data.city.trim(),
+    state: data.state.trim(),
+    pincode: data.pincode.trim(),
+    isDefault: data.isDefault === true,
+  };
+};
+
+export const validateAddToCart = (data: any) => {
+  const errors: string[] = [];
+
+  if (!data.productId || typeof data.productId !== "string") {
+    errors.push("Product ID is required");
+  }
+
+  if (!data.quantity || isNaN(parseInt(data.quantity)) || parseInt(data.quantity) < 1) {
+    errors.push("Quantity must be a positive integer");
+  }
+
+  if (!data.selectedSize || typeof data.selectedSize !== "string") {
+    errors.push("Selected size is required");
+  }
+
+  if (!data.selectedColor || typeof data.selectedColor !== "string") {
+    errors.push("Selected color is required");
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Add to cart validation failed", errors);
+  }
+
+  return {
+    productId: data.productId,
+    quantity: parseInt(data.quantity),
+    selectedSize: data.selectedSize,
+    selectedColor: data.selectedColor,
+  };
+};
+
+export const validateUpdateCartItem = (data: any) => {
+  const errors: string[] = [];
+
+  if (data.quantity === undefined || isNaN(parseInt(data.quantity)) || parseInt(data.quantity) < 1) {
+    errors.push("Quantity must be a positive integer");
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Update cart item validation failed", errors);
+  }
+
+  return {
+    quantity: parseInt(data.quantity),
+  };
+};
+
+export const validateApplyCoupon = (data: any) => {
+  const errors: string[] = [];
+
+  if (!data.couponCode || typeof data.couponCode !== "string" || data.couponCode.trim().length === 0) {
+    errors.push("Coupon code is required");
+  }
+
+  if (!data.cartTotal || isNaN(parseFloat(data.cartTotal)) || parseFloat(data.cartTotal) < 0) {
+    errors.push("Valid cart total is required");
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Apply coupon validation failed", errors);
+  }
+
+  return {
+    couponCode: data.couponCode.trim().toUpperCase(),
+    cartTotal: parseFloat(data.cartTotal),
+  };
+};
+
+export const validateCreateOrder = (data: any) => {
+  const errors: string[] = [];
+
+  if (!data.deliveryAddressId || typeof data.deliveryAddressId !== "string") {
+    errors.push("Delivery address ID is required");
+  }
+
+  if (!data.paymentMethod || typeof data.paymentMethod !== "string" || data.paymentMethod.trim().length === 0) {
+    errors.push("Payment method is required");
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Create order validation failed", errors);
+  }
+
+  return {
+    cartId: data.cartId || null,
+    deliveryAddressId: data.deliveryAddressId,
+    paymentMethod: data.paymentMethod.trim().toUpperCase(),
+  };
+};
+
+export const validateUpdateOrderStatus = (data: any) => {
+  const errors: string[] = [];
+  const validStatuses = ["PENDING", "PACKED", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
+
+  if (!data.status || typeof data.status !== "string" || !validStatuses.includes(data.status)) {
+    errors.push(`Invalid status. Must be one of: ${validStatuses.join(", ")}`);
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Update order status validation failed", errors);
+  }
+
+  return {
+    status: data.status,
+  };
+};

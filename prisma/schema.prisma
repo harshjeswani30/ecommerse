@@ -55,6 +55,7 @@ model User {
   orders           Order[]
   cart             Cart?
   addresses        Address[]
+  wishlist         Wishlist?
   staffPermissions StaffPermission?
 
   @@map("users")
@@ -100,35 +101,44 @@ model Product {
   createdBy  User        @relation(fields: [createdById], references: [id])
   orderItems OrderItem[]
   cartItems  CartItem[]
+  wishlists  Wishlist[]
 
   @@map("products")
 }
 
 model Order {
-  id              String        @id @default(uuid())
-  orderNumber     String        @unique
-  customerId      String
-  totalAmount     Decimal       @db.Decimal(10, 2)
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(PENDING)
-  shippingAddress Json
-  trackingId      String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  orderNumber       String        @unique
+  userId            String
+  deliveryAddressId String
+  status            OrderStatus   @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentMethod     String
+  subtotal          Decimal       @db.Decimal(10, 2)
+  tax               Decimal       @db.Decimal(10, 2)
+  discount          Decimal       @db.Decimal(10, 2)
+  total             Decimal       @db.Decimal(10, 2)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   // Relations
-  customer   User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2)
+  id            String   @id @default(uuid())
+  orderId       String
+  productId     String
+  quantity      Int
+  selectedSize  String
+  selectedColor String
+  priceAtPurchase Decimal @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
 
   // Relations
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -139,22 +149,31 @@ model OrderItem {
 
 model Cart {
   id         String   @id @default(uuid())
-  customerId String   @unique
+  userId     String   @unique
+  subtotal   Decimal  @db.Decimal(10, 2)
+  tax        Decimal  @db.Decimal(10, 2)
+  discount   Decimal  @db.Decimal(10, 2)
+  total      Decimal  @db.Decimal(10, 2)
+  couponCode String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   // Relations
-  customer User       @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  items    CartItem[]
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
 
   @@map("carts")
 }
 
 model CartItem {
-  id        String @id @default(uuid())
-  cartId    String
-  productId String
-  quantity  Int
+  id            String   @id @default(uuid())
+  cartId        String
+  productId     String
+  quantity      Int
+  selectedSize  String
+  selectedColor String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
   cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
@@ -164,16 +183,16 @@ model CartItem {
 }
 
 model Coupon {
-  id                 String   @id @default(uuid())
-  code               String   @unique
-  discountPercentage Int?
-  discountAmount     Decimal? @db.Decimal(10, 2)
-  minOrderAmount     Decimal? @db.Decimal(10, 2)
-  maxUses            Int
-  usedCount          Int      @default(0)
-  expiresAt          DateTime
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id             String   @id @default(uuid())
+  code           String   @unique
+  discountType   String
+  discountValue  Decimal  @db.Decimal(10, 2)
+  minOrderAmount Decimal  @db.Decimal(10, 2)
+  maxUses        Int
+  currentUses    Int      @default(0)
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("coupons")
 }
@@ -195,6 +214,19 @@ model Address {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("addresses")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@map("wishlists")
 }
 
 model StaffPermission {
