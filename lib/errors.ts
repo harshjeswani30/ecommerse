@@ -21,6 +21,13 @@ export class ValidationError extends Error {
   }
 }
 
+export class NotFoundError extends Error {
+  constructor(message: string = "Resource not found") {
+    super(message);
+    this.name = "NotFoundError";
+  }
+}
+
 export const handleError = (error: unknown) => {
   if (error instanceof AuthenticationError) {
     return Response.json(
@@ -40,6 +47,13 @@ export const handleError = (error: unknown) => {
     return Response.json(
       { error: "Bad Request", message: error.message, details: error.details },
       { status: 400 }
+    );
+  }
+
+  if (error instanceof NotFoundError) {
+    return Response.json(
+      { error: "Not Found", message: error.message },
+      { status: 404 }
     );
   }
 

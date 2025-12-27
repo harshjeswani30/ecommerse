@@ -1,5 +1,6 @@
-import { UserRole, Season, OrderStatus, PaymentStatus } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
+import { UserRole, Season, OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
+
+export type Decimal = Prisma.Decimal | number;
 
 export interface User {
   id: string;
@@ -92,4 +93,133 @@ export interface ErrorResponse {
   error: string;
   message: string;
   details?: any;
+}
+
+export interface Address {
+  id: string;
+  userId: string;
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  couponCode: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CartItem {
+  id: string;
+  cartId: string;
+  productId: string;
+  quantity: number;
+  selectedSize: string;
+  selectedColor: string;
+  product?: Product;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  deliveryAddressId: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  paymentMethod: string;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  deliveryAddress: Address;
+  items: OrderItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  selectedSize: string;
+  selectedColor: string;
+  priceAtPurchase: number;
+  product?: Product;
+  createdAt: Date;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+  minOrderAmount: number;
+  maxUses: number;
+  currentUses: number;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AddToCartRequest {
+  productId: string;
+  quantity: number;
+  selectedSize: string;
+  selectedColor: string;
+}
+
+export interface UpdateCartItemRequest {
+  quantity: number;
+}
+
+export interface CreateAddressRequest {
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+  isDefault?: boolean;
+}
+
+export interface ApplyCouponRequest {
+  cartId: string;
+  couponCode: string;
+}
+
+export interface CreateOrderRequest {
+  cartId?: string;
+  deliveryAddressId: string;
+  paymentMethod: string;
+}
+
+export interface OrderTimeline {
+  status: OrderStatus;
+  timestamp: Date;
+  note?: string;
+}
+
+export interface CartCalculation {
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
 }
