@@ -15,6 +15,7 @@
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.1",
     "pg": "^8.16.3",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -22,7 +23,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^20",
+    "@types/node": "^20.19.27",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
