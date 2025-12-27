@@ -120,6 +120,10 @@ model Order {
   total             Decimal       @db.Decimal(10, 2)
   razorpayOrderId   String?
   razorpayPaymentId String?
+  refundStatus      String?
+  refundAmount      Decimal?      @db.Decimal(10, 2)
+  refundId          String?
+  refundReason      String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 

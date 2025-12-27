@@ -28,6 +28,34 @@ export class NotFoundError extends Error {
   }
 }
 
+export class PaymentVerificationError extends Error {
+  constructor(message: string = "Payment verification failed") {
+    super(message);
+    this.name = "PaymentVerificationError";
+  }
+}
+
+export class RazorpayError extends Error {
+  constructor(message: string = "Razorpay error") {
+    super(message);
+    this.name = "RazorpayError";
+  }
+}
+
+export class InvalidSignatureError extends Error {
+  constructor(message: string = "Invalid signature") {
+    super(message);
+    this.name = "InvalidSignatureError";
+  }
+}
+
+export class PaymentTimeoutError extends Error {
+  constructor(message: string = "Payment timeout") {
+    super(message);
+    this.name = "PaymentTimeoutError";
+  }
+}
+
 export const handleError = (error: unknown) => {
   if (error instanceof AuthenticationError) {
     return Response.json(
@@ -54,6 +82,34 @@ export const handleError = (error: unknown) => {
     return Response.json(
       { error: "Not Found", message: error.message },
       { status: 404 }
+    );
+  }
+
+  if (error instanceof PaymentVerificationError) {
+    return Response.json(
+      { error: "Payment Verification Failed", message: error.message },
+      { status: 402 }
+    );
+  }
+
+  if (error instanceof RazorpayError) {
+    return Response.json(
+      { error: "Razorpay Error", message: error.message },
+      { status: 402 }
+    );
+  }
+
+  if (error instanceof InvalidSignatureError) {
+    return Response.json(
+      { error: "Invalid Signature", message: error.message },
+      { status: 401 }
+    );
+  }
+
+  if (error instanceof PaymentTimeoutError) {
+    return Response.json(
+      { error: "Payment Timeout", message: error.message },
+      { status: 408 }
     );
   }
 
