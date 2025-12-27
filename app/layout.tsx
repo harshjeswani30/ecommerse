@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RAJ FASHION - E-Commerce SaaS Platform",
-  description: "Full-stack e-commerce SaaS application for fashion retail with multi-role management, product catalog, and order tracking",
+  title: "RAJ FASHION - Premium Fashion E-Commerce",
+  description: "Discover the latest trends in fashion at RAJ FASHION. Shop men's and women's wear with premium quality and affordable prices.",
+  keywords: ["fashion", "clothing", "online shopping", "men's wear", "women's wear"],
+  openGraph: {
+    title: "RAJ FASHION - Premium Fashion E-Commerce",
+    description: "Discover the latest trends in fashion at RAJ FASHION.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

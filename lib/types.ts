@@ -1,46 +1,34 @@
-import { UserRole, Season, OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
-
-export type Decimal = Prisma.Decimal | number;
-
 export interface User {
   id: string;
-  email: string;
   name: string;
-  role: UserRole;
-  phone: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  email: string;
+  phone?: string;
+  role: "OWNER" | "STAFF" | "CUSTOMER";
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: UserRole;
-}
-
-export interface StaffPermission {
-  id: string;
-  staffId: string;
-  canAddProducts: boolean;
-  canEditProducts: boolean;
-  canDeleteProducts: boolean;
-  canManageCategories: boolean;
-  assignedCategories: string[]; // Category IDs
-  createdAt: Date;
-  updatedAt: Date;
+  role: "OWNER" | "STAFF" | "CUSTOMER";
+  iat?: number;
+  exp?: number;
 }
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  description: string | null;
-  parentId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  parent?: Category | null;
+  description?: string;
+  parentId?: string;
+  parent?: Category;
   children?: Category[];
-  products?: Product[];
+  image?: string;
+  productCount?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Product {
@@ -48,65 +36,33 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
-  price: Decimal | number;
-  discountPrice: Decimal | number | null;
-  categoryId: string;
-  season: Season;
+  price: number;
+  discountPrice?: number;
+  season: "WINTER" | "SUMMER" | "SPRING" | "FALL" | "ALL";
   stock: number;
-  images: string[];
   sizes: string[];
   colors: string[];
-  fabric: string;
-  createdById: string;
-  createdAt: Date;
-  updatedAt: Date;
-  category?: Category;
-  createdBy?: User;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface ProductFilter {
-  category?: string;
-  season?: Season;
-  minPrice?: number;
-  maxPrice?: number;
-  sizes?: string[];
-  colors?: string[];
   fabric?: string;
-  inStock?: boolean;
-  sortBy?: "price" | "newest" | "popularity";
-  page?: number;
-  limit?: number;
-  search?: string;
+  images: string[];
+  categoryId: string;
+  category?: Category;
+  rating?: number;
+  reviewCount?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ErrorResponse {
-  error: string;
-  message: string;
-  details?: any;
-}
-
-export interface Address {
+export interface CartItem {
   id: string;
-  userId: string;
-  fullName: string;
-  phone: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  isDefault: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  cartId: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  size: string;
+  color: string;
+  priceAtAddition: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Cart {
@@ -117,108 +73,120 @@ export interface Cart {
   tax: number;
   discount: number;
   total: number;
-  couponCode: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface CartItem {
-  id: string;
-  cartId: string;
-  productId: string;
-  quantity: number;
-  selectedSize: string;
-  selectedColor: string;
-  product?: Product;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Order {
-  id: string;
-  orderNumber: string;
-  userId: string;
-  deliveryAddressId: string;
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  paymentMethod: string;
-  subtotal: number;
-  tax: number;
-  discount: number;
-  total: number;
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
-  refundStatus?: string | null;
-  refundAmount?: number | null;
-  refundId?: string | null;
-  refundReason?: string | null;
-  deliveryAddress: Address;
-  items: OrderItem[];
-  createdAt: Date;
-  updatedAt: Date;
+  couponCode?: string;
+  itemCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
+  product: Product;
   quantity: number;
-  selectedSize: string;
-  selectedColor: string;
+  size: string;
+  color: string;
   priceAtPurchase: number;
-  product?: Product;
-  createdAt: Date;
+  createdAt: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  user?: User;
+  items: OrderItem[];
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  status: "PENDING" | "PACKED" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED";
+  paymentStatus: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+  paymentMethod?: string;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+  couponCode?: string;
+  shippingAddress: Address;
+  trackingId?: string;
+  refundStatus?: string;
+  refundAmount?: number;
+  refundId?: string;
+  refundReason?: string;
+  statusHistory: OrderStatusHistory[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderStatusHistory {
+  status: string;
+  timestamp: string;
+  note?: string;
+}
+
+export interface Address {
+  id: string;
+  userId: string;
+  name: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark?: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WishlistItem {
+  id: string;
+  userId: string;
+  productId: string;
+  product: Product;
+  createdAt: string;
 }
 
 export interface Coupon {
   id: string;
   code: string;
-  discountType: "PERCENTAGE" | "FIXED";
-  discountValue: number;
-  minOrderAmount: number;
-  maxUses: number;
-  currentUses: number;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  minAmount: number;
+  maxDiscount?: number;
+  maxUses?: number;
+  usedCount: number;
+  expiryDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface AddToCartRequest {
-  productId: string;
-  quantity: number;
-  selectedSize: string;
-  selectedColor: string;
+export interface StaffPermission {
+  id: string;
+  userId: string;
+  canAddProducts: boolean;
+  canEditProducts: boolean;
+  canDeleteProducts: boolean;
+  canManageCategories: boolean;
+  assignedCategories: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface UpdateCartItemRequest {
-  quantity: number;
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
-export interface CreateAddressRequest {
-  fullName: string;
-  phone: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  isDefault?: boolean;
-}
-
-export interface ApplyCouponRequest {
-  cartId: string;
-  couponCode: string;
-}
-
-export interface CreateOrderRequest {
-  cartId?: string;
-  deliveryAddressId: string;
-  paymentMethod: string;
-}
-
-export interface OrderTimeline {
-  status: OrderStatus;
-  timestamp: Date;
-  note?: string;
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  success: boolean;
 }
 
 export interface CartCalculation {
@@ -228,84 +196,23 @@ export interface CartCalculation {
   total: number;
 }
 
-// Razorpay Payment Types
-export interface RazorpayOrder {
-  id: string;
-  entity: string;
-  amount: number;
-  amount_paid: number;
-  amount_due: number;
-  currency: string;
-  receipt: string;
-  offer_id: string | null;
+export interface OrderTimeline {
   status: string;
-  attempts: number;
-  notes: Record<string, any>;
-  created_at: number;
+  timestamp: string;
+  note?: string;
 }
 
-export interface RazorpayPayment {
-  id: string;
-  entity: string;
-  amount: number;
-  currency: string;
-  status: string;
-  order_id: string;
-  invoice_id: string | null;
-  international: boolean;
-  method: string;
-  amount_refunded: number;
-  refund_status: string | null;
-  captured: boolean;
-  description: string;
-  card_id: string | null;
-  bank: string | null;
-  wallet: string | null;
-  vpa: string | null;
-  email: string;
-  contact: string;
-  notes: Record<string, any>;
-  fee: number;
-  tax: number;
-  error_code: string | null;
-  error_description: string | null;
-  error_source: string | null;
-  error_step: string | null;
-  error_reason: string | null;
-  acquirer_data: Record<string, any>;
-  created_at: number;
-}
-
-export interface PaymentVerificationPayload {
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  razorpaySignature: string;
-}
-
-export interface RazorpayWebhook {
-  event: string;
-  payload: any;
-  created_at: number;
-}
-
-export interface PaymentStatusResponse {
-  orderId: string;
-  orderNumber: string;
-  paymentStatus: PaymentStatus;
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
-  amount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface PaymentHistoryItem {
-  orderId: string;
-  orderNumber: string;
-  amount: number;
-  paymentStatus: PaymentStatus;
-  razorpayPaymentId: string | null;
-  razorpayOrderId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+export interface ProductFilter {
+  category?: string;
+  season?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sizes?: string[];
+  colors?: string[];
+  search?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+  inStock?: boolean;
+  fabric?: string;
 }

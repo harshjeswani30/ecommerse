@@ -9,7 +9,7 @@ export const buildProductFilter = (filters: ProductFilter): Prisma.ProductWhereI
   }
 
   if (filters.season) {
-    where.season = filters.season;
+    where.season = filters.season as Season;
   }
 
   if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
